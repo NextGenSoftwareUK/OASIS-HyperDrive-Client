@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OasisHyperDriveClient.Core/OasisHyperDriveClient.Core.csproj" />
+    <Project Path="src/OasisHyperDriveClient/OasisHyperDriveClient.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OasisHyperDriveClient.Tests/OasisHyperDriveClient.Tests.csproj" />
+  </Folder>
+</Solution>

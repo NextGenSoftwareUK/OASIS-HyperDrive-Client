@@ -1,0 +1,95 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Dark background for all windows -->
+    <Style Selector="Window">
+        <Setter Property="Background" Value="#0D0D1A" />
+        <Setter Property="Foreground" Value="#E0E0FF" />
+    </Style>
+
+    <!-- Toolbar buttons -->
+    <Style Selector="Button.toolbar">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#A0A0CC" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#1E1E3A" />
+        <Setter Property="TextElement.Foreground" Value="#00FFEE" />
+    </Style>
+
+    <!-- Sidebar nav buttons -->
+    <Style Selector="Button.nav">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#A0A0CC" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="4" />
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#1A1A30" />
+        <Setter Property="TextElement.Foreground" Value="#00FFEE" />
+    </Style>
+    <Style Selector="Button.nav.active /template/ ContentPresenter">
+        <Setter Property="Background" Value="#1A1A30" />
+        <Setter Property="TextElement.Foreground" Value="#00FFEE" />
+    </Style>
+
+    <!-- Neon text accents -->
+    <Style Selector="TextBlock.neon">
+        <Setter Property="Foreground" Value="#00FFEE" />
+    </Style>
+    <Style Selector="TextBlock.warning">
+        <Setter Property="Foreground" Value="#FFD700" />
+    </Style>
+    <Style Selector="TextBlock.error">
+        <Setter Property="Foreground" Value="#FF3333" />
+    </Style>
+
+    <!-- Provider badge -->
+    <Style Selector="Border.provider-badge">
+        <Setter Property="Background" Value="#1A1A30" />
+        <Setter Property="BorderBrush" Value="#2A2A4A" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="6,2" />
+    </Style>
+
+    <!-- Status bar -->
+    <Style Selector="Border.status-bar">
+        <Setter Property="Background" Value="#0A0A18" />
+        <Setter Property="BorderBrush" Value="#1A1A30" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="Padding" Value="12,4" />
+    </Style>
+
+    <!-- Login card -->
+    <Style Selector="Border.login-card">
+        <Setter Property="Background" Value="#151528" />
+        <Setter Property="BorderBrush" Value="#2A2A4A" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="40,36" />
+    </Style>
+
+    <!-- Primary action button -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="#00FFEE" />
+        <Setter Property="Foreground" Value="#0D0D1A" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="20,8" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#00DDCC" />
+    </Style>
+    <Style Selector="Button.primary:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="#1A3A38" />
+        <Setter Property="TextElement.Foreground" Value="#4A7A78" />
+    </Style>
+
+</Styles>

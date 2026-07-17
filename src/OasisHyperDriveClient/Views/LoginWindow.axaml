@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OasisHyperDriveClient.ViewModels"
+        x:Class="OasisHyperDriveClient.Views.LoginWindow"
+        x:DataType="vm:LoginViewModel"
+        Title="OASIS HyperDrive — Sign In"
+        Width="420" Height="500"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="#0D0D1A">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,40,0,20" HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="⊙" FontSize="56" HorizontalAlignment="Center"
+                       Foreground="#00FFEE" />
+            <TextBlock Text="OASIS HyperDrive" FontSize="22" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" Foreground="#E0E0FF" />
+            <TextBlock Text="Sign in with your OASIS Avatar" FontSize="13"
+                       HorizontalAlignment="Center" Foreground="#606080" />
+        </StackPanel>
+
+        <!-- Login card -->
+        <Border Grid.Row="1" Classes="login-card" Margin="40,0" VerticalAlignment="Center">
+            <StackPanel Spacing="16">
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Email" FontSize="12" Foreground="#808099" />
+                    <TextBox Text="{Binding Email}"
+                             Watermark="avatar@example.com"
+                             Background="#0A0A18"
+                             BorderBrush="#2A2A4A"
+                             Foreground="#E0E0FF"
+                             CornerRadius="6" />
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Password" FontSize="12" Foreground="#808099" />
+                    <TextBox Text="{Binding Password}"
+                             PasswordChar="●"
+                             Watermark="••••••••"
+                             Background="#0A0A18"
+                             BorderBrush="#2A2A4A"
+                             Foreground="#E0E0FF"
+                             CornerRadius="6" />
+                </StackPanel>
+
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Classes="error"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+                <Button Classes="primary"
+                        Command="{Binding LoginCommand}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="0,8,0,0">
+                    <Panel>
+                        <TextBlock Text="Sign In" IsVisible="{Binding !IsLoading}" />
+                        <TextBlock Text="Signing in..." IsVisible="{Binding IsLoading}"
+                                   Foreground="#4A7A78" />
+                    </Panel>
+                </Button>
+
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <TextBlock Grid.Row="2" Margin="0,0,0,24"
+                   Text="OASIS Architecture · WEB4 · Decentralised"
+                   FontSize="11" Foreground="#303050"
+                   HorizontalAlignment="Center" />
+    </Grid>
+</Window>

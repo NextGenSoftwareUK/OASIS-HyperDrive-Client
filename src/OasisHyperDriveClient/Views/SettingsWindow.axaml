@@ -1,0 +1,62 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OasisHyperDriveClient.ViewModels"
+        x:Class="OasisHyperDriveClient.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="OASIS HyperDrive — Settings"
+        Width="520" Height="560"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="False">
+
+    <Panel Background="#0D0D1A">
+        <ScrollViewer Margin="24">
+            <StackPanel Spacing="20">
+
+                <!-- Connection -->
+                <TextBlock Text="Connection" Classes="neon" FontSize="14" FontWeight="Bold" />
+                <StackPanel Spacing="8">
+                    <TextBlock Text="OASIS API URL" Foreground="#CCCCCC" FontSize="12" />
+                    <TextBox Text="{Binding ApiBaseUrl}" />
+                </StackPanel>
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Default Provider" Foreground="#CCCCCC" FontSize="12" />
+                    <TextBox Text="{Binding DefaultProvider}" Watermark="Leave blank for auto" />
+                </StackPanel>
+
+                <!-- Dashboard -->
+                <TextBlock Text="Dashboard" Classes="neon" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" />
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Refresh interval (seconds)" Foreground="#CCCCCC" FontSize="12" />
+                    <NumericUpDown Value="{Binding DashboardRefreshSeconds}"
+                                   Minimum="5" Maximum="300" Increment="5" />
+                </StackPanel>
+
+                <!-- System -->
+                <TextBlock Text="System" Classes="neon" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" />
+                <CheckBox IsChecked="{Binding AutoStartOnLogin}"
+                          Content="Launch OASIS HyperDrive on login"
+                          Foreground="#CCCCCC" />
+
+                <!-- Notifications -->
+                <TextBlock Text="Notifications" Classes="neon" FontSize="14" FontWeight="Bold" Margin="0,8,0,0" />
+                <CheckBox IsChecked="{Binding NotifyFailover}"      Content="Failover triggered"      Foreground="#CCCCCC" />
+                <CheckBox IsChecked="{Binding NotifyProviderDown}"  Content="Provider down"           Foreground="#CCCCCC" />
+                <CheckBox IsChecked="{Binding NotifyReplication}"   Content="Replication complete"    Foreground="#CCCCCC" />
+                <CheckBox IsChecked="{Binding NotifyFileReceived}"  Content="File received"           Foreground="#CCCCCC" />
+                <CheckBox IsChecked="{Binding NotifyUploadComplete}" Content="Upload complete"        Foreground="#CCCCCC" />
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Quota warning threshold (%)" Foreground="#CCCCCC" FontSize="12" />
+                    <NumericUpDown Value="{Binding QuotaWarningPercent}"
+                                   Minimum="10" Maximum="100" Increment="5" />
+                </StackPanel>
+
+                <!-- Actions -->
+                <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" />
+                    <Button Classes="primary" Content="Save Settings" Command="{Binding SaveCommand}" />
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Panel>
+</Window>

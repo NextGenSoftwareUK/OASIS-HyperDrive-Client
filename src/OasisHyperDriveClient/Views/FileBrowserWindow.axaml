@@ -1,0 +1,186 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OasisHyperDriveClient.ViewModels"
+        xmlns:dg="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
+        x:Class="OasisHyperDriveClient.Views.FileBrowserWindow"
+        x:DataType="vm:FileBrowserViewModel"
+        Title="OASIS HyperDrive"
+        Width="1000" Height="660"
+        MinWidth="700" MinHeight="450"
+        WindowStartupLocation="CenterScreen"
+        Background="#0D0D1A">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Background="#0A0A18" BorderBrush="#1A1A30"
+                BorderThickness="0,0,0,1" Padding="8,6">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+
+                <!-- Left: nav + path -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
+                    <Button Classes="toolbar" Content="&lt;" ToolTip.Tip="Back" />
+                    <Button Classes="toolbar" Content="&gt;" ToolTip.Tip="Forward" />
+                    <Button Classes="toolbar" Content="^" ToolTip.Tip="Up" />
+                    <TextBlock Text="My HyperDrive" Foreground="#A0A0CC"
+                               VerticalAlignment="Center" Margin="12,0,0,0" FontSize="13" />
+                </StackPanel>
+
+                <!-- Centre: actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Spacing="4">
+                    <Button Classes="toolbar" Content="Upload"
+                            ToolTip.Tip="Upload file"
+                            Command="{Binding UploadCommand}" />
+                    <Button Classes="toolbar" Content="Download"
+                            ToolTip.Tip="Download selected"
+                            Command="{Binding DownloadCommand}"
+                            IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Classes="toolbar" Content="Rename"
+                            Command="{Binding RenameCommand}"
+                            IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Classes="toolbar" Content="Send to Avatar"
+                            ToolTip.Tip="Send to avatar"
+                            Command="{Binding SendToAvatarCommand}"
+                            IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Classes="toolbar" Content="Metadata"
+                            Command="{Binding ViewMetadataCommand}"
+                            IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Classes="toolbar" Content="Delete"
+                            Command="{Binding DeleteCommand}"
+                            IsEnabled="{Binding SelectedItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Classes="toolbar" Content="Refresh"
+                            Command="{Binding RefreshCommand}" />
+                </StackPanel>
+
+                <!-- Right: provider filter + search -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <ComboBox ItemsSource="{Binding AvailableProviders}"
+                              SelectedItem="{Binding SelectedProvider}"
+                              Background="#0D0D1A"
+                              BorderBrush="#2A2A4A"
+                              Foreground="#C0C0DD"
+                              MinWidth="160" />
+                    <TextBox Text="{Binding SearchQuery}"
+                             PlaceholderText="Search..."
+                             Background="#0A0A18"
+                             BorderBrush="#2A2A4A"
+                             Foreground="#C0C0DD"
+                             CornerRadius="4"
+                             Width="200" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main content: sidebar + list -->
+        <Grid Grid.Row="1" ColumnDefinitions="180,*">
+
+            <!-- Sidebar -->
+            <Border Grid.Column="0" Background="#080818" BorderBrush="#1A1A30"
+                    BorderThickness="0,0,1,0" Padding="8,12">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="CONTENT TYPE" FontSize="10" Foreground="#404060"
+                               Margin="12,0,0,8" FontWeight="SemiBold"
+                               LetterSpacing="1.5" />
+                    <Button Classes="nav" Content="All Files"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="All" />
+                    <Button Classes="nav" Content="Holons"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="Holon" />
+                    <Button Classes="nav" Content="NFTs"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="NFT" />
+                    <Button Classes="nav" Content="GeoNFTs"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="GeoNFT" />
+                    <Button Classes="nav" Content="Keys"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="Keys" />
+                    <Button Classes="nav" Content="Avatar Data"
+                            Command="{Binding SelectContentTypeCommand}"
+                            CommandParameter="Avatar" />
+                </StackPanel>
+            </Border>
+
+            <!-- File list -->
+            <Grid Grid.Column="1">
+                <Panel>
+                    <!-- Loading overlay -->
+                    <Border Background="#80000000" IsVisible="{Binding IsLoading}" ZIndex="10">
+                        <TextBlock Text="Loading..." Foreground="#00FFEE"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="16" />
+                    </Border>
+
+                    <DataGrid ItemsSource="{Binding Items}"
+                              SelectedItem="{Binding SelectedItem}"
+                              IsReadOnly="True"
+                              AutoGenerateColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              SelectionMode="Single">
+
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Download"
+                                          Command="{Binding DownloadCommand}" />
+                                <MenuItem Header="Rename"
+                                          Command="{Binding RenameCommand}" />
+                                <MenuItem Header="Send to Avatar"
+                                          Command="{Binding SendToAvatarCommand}" />
+                                <MenuItem Header="View Metadata"
+                                          Command="{Binding ViewMetadataCommand}" />
+                                <Separator />
+                                <MenuItem Header="Delete"
+                                          Command="{Binding DeleteCommand}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="" Binding="{Binding DisplayIcon}"
+                                                Width="28" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"
+                                                Width="*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding HolonType}"
+                                                Width="90" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Provider" Binding="{Binding PrimaryProvider}"
+                                                Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}"
+                                                Width="80" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Modified"
+                                                Binding="{Binding Modified, StringFormat='{}{0:d MMM yyyy}'}"
+                                                Width="110" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Panel>
+            </Grid>
+        </Grid>
+
+        <!-- Status bar -->
+        <Border Grid.Row="2" Classes="status-bar">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                           Foreground="#606080" FontSize="12"
+                           VerticalAlignment="Center" />
+                <!-- Dynamic provider indicators -->
+                <ItemsControl Grid.Column="1"
+                              ItemsSource="{Binding ActiveProviderNames}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="16" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Foreground="#00FFEE" FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding StringFormat='● {0}'}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

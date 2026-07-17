@@ -1,0 +1,125 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OasisHyperDriveClient.ViewModels"
+        xmlns:dg="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
+        x:Class="OasisHyperDriveClient.Views.DashboardWindow"
+        x:DataType="vm:DashboardViewModel"
+        Title="OASIS HyperDrive — Dashboard"
+        Width="720" Height="560"
+        WindowStartupLocation="CenterScreen"
+        Background="#0D0D1A">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,24">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="HyperDrive Dashboard" FontSize="20" FontWeight="SemiBold"
+                           Foreground="#E0E0FF" />
+                <TextBlock FontSize="12" Foreground="#606080">
+                    <Run Text="Last updated: " />
+                    <Run Text="{Binding LastUpdated}" Foreground="#00FFEE" />
+                </TextBlock>
+            </StackPanel>
+            <Button Grid.Column="1" Classes="toolbar" Content="↺ Refresh"
+                    Command="{Binding RefreshCommand}" VerticalAlignment="Top" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="20">
+
+                <!-- Stat tiles -->
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                    <!-- System health -->
+                    <Border Grid.Column="0" Background="#080818" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="System Health" FontSize="11" Foreground="#606080" />
+                            <TextBlock Text="{Binding SystemHealthDisplay}" FontSize="28"
+                                       FontWeight="Bold" Foreground="#00FFEE" />
+                        </StackPanel>
+                    </Border>
+                    <!-- Active providers -->
+                    <Border Grid.Column="1" Background="#080818" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Active Providers" FontSize="11" Foreground="#606080" />
+                            <TextBlock Text="{Binding ActiveProviders}" FontSize="28"
+                                       FontWeight="Bold" Foreground="#00FFEE" />
+                        </StackPanel>
+                    </Border>
+                    <!-- Avg latency -->
+                    <Border Grid.Column="2" Background="#080818" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Avg Latency" FontSize="11" Foreground="#606080" />
+                            <TextBlock FontSize="28" FontWeight="Bold" Foreground="#00FFEE">
+                                <Run Text="{Binding AvgResponseTime, StringFormat='{}{0:F0}'}" />
+                                <Run Text=" ms" FontSize="14" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <!-- Total cost -->
+                    <Border Grid.Column="3" Background="#080818" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Cost (month)" FontSize="11" Foreground="#606080" />
+                            <TextBlock FontSize="22" FontWeight="Bold" Foreground="#00FFEE">
+                                <Run Text="$" />
+                                <Run Text="{Binding TotalCost, StringFormat='{}{0:F4}'}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Provider health table -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="PROVIDER HEALTH" FontSize="10" Foreground="#404060"
+                               FontWeight="SemiBold" LetterSpacing="1.5" />
+                    <DataGrid ItemsSource="{Binding ProviderMetrics}"
+                              IsReadOnly="True"
+                              AutoGenerateColumns="False"
+                              CanUserResizeColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Provider" Binding="{Binding ProviderType}" Width="140" />
+                            <DataGridTextColumn Header="Uptime" Binding="{Binding UptimePercentage, StringFormat='{}{0:F1}%'}" Width="80" />
+                            <DataGridTextColumn Header="Latency" Binding="{Binding ResponseTimeMs, StringFormat='{}{0:F0} ms'}" Width="90" />
+                            <DataGridTextColumn Header="Error Rate" Binding="{Binding ErrorRate, StringFormat='{}{0:P1}'}" Width="90" />
+                            <DataGridTextColumn Header="Score" Binding="{Binding OverallScore, StringFormat='{}{0:F2}'}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+
+                <!-- Active alerts -->
+                <StackPanel Spacing="10" IsVisible="{Binding Alerts.Count, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <TextBlock Text="ACTIVE ALERTS" FontSize="10" Foreground="#404060"
+                               FontWeight="SemiBold" LetterSpacing="1.5" />
+                    <ItemsControl ItemsSource="{Binding Alerts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#1A0A0A" BorderBrush="#3A1A1A"
+                                        BorderThickness="1" CornerRadius="6"
+                                        Padding="12,8" Margin="0,0,0,6">
+                                    <StackPanel Spacing="2">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="⚠" Foreground="#FFD700" />
+                                            <TextBlock Text="{Binding ProviderType}"
+                                                       Foreground="#FFD700" FontWeight="SemiBold"
+                                                       FontSize="12" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Message}"
+                                                   Foreground="#C0A0A0" FontSize="12"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12"
+                    HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Close" Classes="primary" Click="OnCloseClick" />
+        </StackPanel>
+    </Grid>
+</Window>
