@@ -43,7 +43,7 @@ Like OneDrive, Google Drive, or Dropbox, the client lives in the system tray and
 ## Solution Structure
 
 ```
-OasisHyperDriveClient/
+OASIS-HyperDrive-Client/
 ├── src/
 │   ├── OasisHyperDriveClient.Core/          # Shared library — models, API, auth, services
 │   │   ├── Api/
@@ -120,8 +120,8 @@ OasisHyperDriveClient/
 ### Clone and Build
 
 ```bash
-git clone https://github.com/NextGenSoftwareUK/OasisHyperDriveClient.git
-cd OasisHyperDriveClient
+git clone https://github.com/NextGenSoftwareUK/OASIS-HyperDrive-Client.git
+cd OASIS-HyperDrive-Client
 dotnet build
 ```
 
@@ -135,7 +135,7 @@ The app starts in the system tray. Double-click the tray icon to open the file b
 
 ### Configure API URL
 
-By default the client connects to `https://api.oasis.ac`. Override for local development:
+By default the client connects to `https://api.web4.oasisomniverse.one`. Override for local development:
 
 ```bash
 # Environment variable
@@ -220,7 +220,7 @@ Settings are stored at `%APPDATA%/OasisHyperDriveClient/settings.json` (Windows)
 
 | Setting | Default | Description |
 |---|---|---|
-| `ApiBaseUrl` | `https://api.oasis.ac` | ONODE API base URL |
+| `ApiBaseUrl` | `https://api.web4.oasisomniverse.one` | ONODE API base URL |
 | `DefaultProvider` | _(blank = auto)_ | Preferred provider for uploads |
 | `AutoStartOnLogin` | `false` | Create OS autostart entry |
 | `Theme` | `Dark` | UI theme |
@@ -233,7 +233,7 @@ Settings are stored at `%APPDATA%/OasisHyperDriveClient/settings.json` (Windows)
 
 The full design specification is in the OASIS trust repo:
 
-- [`docs/OASIS-HyperDrive-Client-Design-Spec.md`](https://github.com/NextGenSoftwareUK/Our-World-OASIS-API-HoloNET-HoloUnity-And-Or-Avatars/blob/master/docs/OASIS-HyperDrive-Client-Design-Spec.md)
+- [`Docs/Devs/OASIS-HyperDrive-Client-Design-Spec.md`](https://github.com/NextGenSoftwareUK/OASIS/blob/master/Docs/Devs/OASIS-HyperDrive-Client-Design-Spec.md)
 
 ---
 
@@ -248,4 +248,4 @@ The full design specification is in the OASIS trust repo:
 ## Related Projects
 
 - [OASIS API / ONODE](https://github.com/NextGenSoftwareUK/Our-World-OASIS-API-HoloNET-HoloUnity-And-Or-Avatars) — the backend this client talks to
-- [ONODE Manager](../ONODEManager/) — companion desktop app for managing ONODE nodes (same Avalonia stack)
+- [ONODE Manager](https://github.com/NextGenSoftwareUK/OASIS/tree/master/ONODE/NextGenSoftware.OASIS.ONODE.Manager) — companion desktop app for managing ONODE nodes (same Avalonia stack)
