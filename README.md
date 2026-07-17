@@ -247,5 +247,5 @@ The full design specification is in the OASIS trust repo:
 
 ## Related Projects
 
-- [OASIS API / ONODE](https://github.com/NextGenSoftwareUK/Our-World-OASIS-API-HoloNET-HoloUnity-And-Or-Avatars) — the backend this client talks to
+- [OASIS API / ONODE](https://github.com/NextGenSoftwareUK/OASIS/tree/master/ONODE/NextGenSoftware.OASIS.API.ONODE.WebAPI) — the backend this client talks to
 - [ONODE Manager](https://github.com/NextGenSoftwareUK/OASIS/tree/master/ONODE/NextGenSoftware.OASIS.ONODE.Manager) — companion desktop app for managing ONODE nodes (same Avalonia stack)
