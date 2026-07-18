@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  PROJECT: src/OasisHyperDriveClient/OasisHyperDriveClient.csproj
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            artifact: OasisHyperDriveClient-win-x64.exe
+          - os: ubuntu-latest
+            rid: linux-x64
+            artifact: OasisHyperDriveClient-linux-x64
+          - os: macos-latest
+            rid: osx-x64
+            artifact: OasisHyperDriveClient-osx-x64
+          - os: macos-latest
+            rid: osx-arm64
+            artifact: OasisHyperDriveClient-osx-arm64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish
+        run: >
+          dotnet publish ${{ env.PROJECT }}
+          -c Release -r ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -o publish/${{ matrix.rid }}
+
+      - name: Rename artifact (Unix)
+        if: runner.os != 'Windows'
+        run: cp publish/${{ matrix.rid }}/OasisHyperDriveClient ${{ matrix.artifact }}
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: cp publish/${{ matrix.rid }}/OasisHyperDriveClient.exe ${{ matrix.artifact }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: OASIS HyperDrive Client ${{ github.ref_name }} (Alpha)
+          prerelease: true
+          body: |
+            ## OASIS HyperDrive Client ${{ github.ref_name }} — Alpha Release
+
+            > ⚠️ **This is an alpha release.**
+
+            Cross-platform system-tray desktop app for managing your OASIS HyperDrive.
+
+            ### Downloads
+            | Platform | File |
+            |---|---|
+            | Windows x64 | `OasisHyperDriveClient-win-x64.exe` |
+            | Linux x64 | `OasisHyperDriveClient-linux-x64` |
+            | macOS x64 | `OasisHyperDriveClient-osx-x64` |
+            | macOS ARM64 (M1/M2) | `OasisHyperDriveClient-osx-arm64` |
+
+            ### Requirements
+            - OASIS ONODE running and accessible
+            - Windows 10+, Ubuntu 20.04+, or macOS 12+
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
