@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
@@ -44,11 +43,6 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
         vm.UploadRequested         += OnUpload;
         vm.DownloadRequested       += OnDownload;
         vm.VersionHistoryRequested += OnVersionHistory;
-
-        // Enable drag-and-drop onto the window
-        DragDrop.SetAllowDrop(this, true);
-        AddHandler(DragDrop.DropEvent, OnDrop);
-        AddHandler(DragDrop.DragOverEvent, OnDragOver);
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -161,25 +155,6 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
         win.ShowDialog(this);
     }
 
-    private static void OnDragOver(object? sender, DragEventArgs e)
-    {
-        e.DragEffects = e.Data.Contains(DataFormats.Files) ? DragDropEffects.Copy : DragDropEffects.None;
-    }
-
-    private async void OnDrop(object? sender, DragEventArgs e)
-    {
-        if (!e.Data.Contains(DataFormats.Files)) return;
-        var files = e.Data.GetFiles();
-        if (files is null) return;
-
-        var storageFiles = files.OfType<IStorageFile>().ToList();
-        if (storageFiles.Count == 0) return;
-
-        var browserVm = DataContext as FileBrowserViewModel;
-        if (browserVm is null) return;
-
-        await browserVm.UploadFilesAsync(storageFiles);
-    }
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {

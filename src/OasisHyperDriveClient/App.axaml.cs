@@ -66,12 +66,14 @@ public partial class App : Application
         services.AddSingleton<AvatarService>();
         services.AddSingleton<DataService>();
         services.AddSingleton<HyperDriveService>();
+#pragma warning disable CA1416 // OS guards immediately above guarantee correct platform
         if (OperatingSystem.IsWindows())
             services.AddSingleton<ICredentialStore, Auth.WindowsCredentialStore>();
         else if (OperatingSystem.IsMacOS())
             services.AddSingleton<ICredentialStore, Auth.MacKeychainStore>();
         else
             services.AddSingleton<ICredentialStore, Auth.LinuxSecretStore>();
+#pragma warning restore CA1416
         services.AddSingleton<AuthService>();
         services.AddSingleton<HyperDriveMonitorService>(sp =>
             new HyperDriveMonitorService(
@@ -80,12 +82,14 @@ public partial class App : Application
         services.AddSingleton<HolonCacheService>();
         services.AddSingleton<INotificationService, AvaloniaNotificationService>();
 
+#pragma warning disable CA1416 // OS guards immediately above guarantee correct platform
         if (OperatingSystem.IsWindows())
             services.AddSingleton<IAutoStartService, WindowsAutoStartService>();
         else if (OperatingSystem.IsMacOS())
             services.AddSingleton<IAutoStartService, MacAutoStartService>();
         else
             services.AddSingleton<IAutoStartService, LinuxAutoStartService>();
+#pragma warning restore CA1416
 
         return services.BuildServiceProvider();
     }

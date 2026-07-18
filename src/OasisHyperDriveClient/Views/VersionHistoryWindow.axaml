@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:OasisHyperDriveClient.ViewModels"
         x:Class="OasisHyperDriveClient.Views.VersionHistoryWindow"
+        x:DataType="vm:VersionHistoryViewModel"
         Title="Version History"
         Width="600" Height="400"
         WindowStartupLocation="CenterOwner">
@@ -17,9 +18,9 @@
               IsReadOnly="True"
               CanUserReorderColumns="False">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="Version" Binding="{Binding VersionLabel}" Width="80" />
-        <DataGridTextColumn Header="Modified"  Binding="{Binding Modified}"     Width="160" />
-        <DataGridTextColumn Header="By"        Binding="{Binding ModifiedBy}"   Width="*" />
+        <DataGridTextColumn Header="Version"  Binding="{ReflectionBinding VersionLabel}" Width="80" />
+        <DataGridTextColumn Header="Modified" Binding="{ReflectionBinding Modified}"     Width="160" />
+        <DataGridTextColumn Header="By"       Binding="{ReflectionBinding ModifiedBy}"   Width="*" />
       </DataGrid.Columns>
     </DataGrid>
 
