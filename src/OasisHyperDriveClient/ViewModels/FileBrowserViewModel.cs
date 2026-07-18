@@ -104,6 +104,7 @@ public class FileBrowserViewModel : ViewModelBase
     public ICommand ToggleViewCommand         { get; }
     public ICommand BackCommand               { get; }
     public ICommand ForwardCommand            { get; }
+    public ICommand NavigateUpCommand         { get; }
     public ICommand NavigateToCommand         { get; }
     public ICommand ViewOnProviderCommand     { get; }
     public ICommand BatchDeleteCommand        { get; }
@@ -176,6 +177,19 @@ public class FileBrowserViewModel : ViewModelBase
 
         var canGoBack    = this.WhenAnyValue(x => x.CurrentPath).Select(_ => _backStack.Count > 0);
         var canGoForward = this.WhenAnyValue(x => x.CurrentPath).Select(_ => _forwardStack.Count > 0);
+        var canGoUp      = this.WhenAnyValue(x => x.CurrentPath).Select(p => p != "/");
+
+        NavigateUpCommand = ReactiveCommand.Create(() =>
+        {
+            var parent = CurrentPath.TrimEnd('/');
+            var idx = parent.LastIndexOf('/');
+            var up = idx <= 0 ? "/" : parent[..idx];
+            _backStack.Push(CurrentPath);
+            _forwardStack.Clear();
+            CurrentPath = up;
+            RebuildBreadcrumbs();
+            _ = LoadItemsAsync();
+        }, canGoUp);
 
         BackCommand = ReactiveCommand.Create(() =>
         {

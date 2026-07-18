@@ -19,11 +19,30 @@
 
                 <!-- Left: nav + path -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2">
-                    <Button Classes="toolbar" Content="&lt;" ToolTip.Tip="Back" />
-                    <Button Classes="toolbar" Content="&gt;" ToolTip.Tip="Forward" />
-                    <Button Classes="toolbar" Content="^" ToolTip.Tip="Up" />
-                    <TextBlock Text="My HyperDrive" Foreground="#A0A0CC"
-                               VerticalAlignment="Center" Margin="12,0,0,0" FontSize="13" />
+                    <Button Classes="toolbar" Content="&lt;" ToolTip.Tip="Back"
+                            Command="{Binding BackCommand}" />
+                    <Button Classes="toolbar" Content="&gt;" ToolTip.Tip="Forward"
+                            Command="{Binding ForwardCommand}" />
+                    <Button Classes="toolbar" Content="^" ToolTip.Tip="Up"
+                            Command="{Binding NavigateUpCommand}" />
+                    <ItemsControl ItemsSource="{Binding Breadcrumbs}" Margin="12,0,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Classes="toolbar" Content="{Binding Label}"
+                                            Command="{Binding $parent[ItemsControl].DataContext.NavigateToCommand}"
+                                            CommandParameter="{Binding Path}"
+                                            Padding="4,2" />
+                                    <TextBlock Text=" › " Foreground="#404060" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
 
                 <!-- Centre: actions -->
@@ -132,6 +151,8 @@
                                           Command="{Binding SendToAvatarCommand}" />
                                 <MenuItem Header="View Metadata"
                                           Command="{Binding ViewMetadataCommand}" />
+                                <MenuItem Header="Version History"
+                                          Command="{Binding ShowVersionHistoryCommand}" />
                                 <Separator />
                                 <MenuItem Header="Delete"
                                           Command="{Binding DeleteCommand}" />

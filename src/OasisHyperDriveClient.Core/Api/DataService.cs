@@ -1,14 +1,17 @@
 using OasisHyperDriveClient.Core.Models;
+using OasisHyperDriveClient.Core.Services;
 
 namespace OasisHyperDriveClient.Core.Api;
 
 public class DataService
 {
     private readonly OasisApiClient _api;
+    private readonly HolonCacheService _cache;
 
-    public DataService(OasisApiClient api)
+    public DataService(OasisApiClient api, HolonCacheService cache)
     {
         _api = api;
+        _cache = cache;
     }
 
     public async Task<IReadOnlyList<Holon>> LoadAllHolonsAsync(
@@ -16,12 +19,18 @@ public class DataService
         string? provider = null,
         CancellationToken ct = default)
     {
+        var cacheKey = $"all:{holonType}:{provider}";
+
+        if (_api.IsCircuitOpen)
+            return _cache.TryGet(cacheKey) ?? [];
+
         var result = await _api.PostAsync<List<Holon>>("api/data/load-all-holons",
             new { HolonType = holonType, Provider = provider }, ct);
 
         if (result.IsError || result.Result is null)
-            return [];
+            return _cache.TryGet(cacheKey) ?? [];
 
+        _cache.Store(cacheKey, result.Result);
         return result.Result;
     }
 

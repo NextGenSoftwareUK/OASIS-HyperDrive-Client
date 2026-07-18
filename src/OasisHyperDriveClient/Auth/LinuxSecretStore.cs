@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using OasisHyperDriveClient.Core.Auth;
 
 namespace OasisHyperDriveClient.Auth;
 
+[SupportedOSPlatform("linux")]
 public class LinuxSecretStore : ICredentialStore
 {
     private const string Schema = "oasis.hyperdrive.client";

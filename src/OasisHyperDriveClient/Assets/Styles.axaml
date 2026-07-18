@@ -49,6 +49,15 @@
     <Style Selector="TextBlock.error">
         <Setter Property="Foreground" Value="#FF3333" />
     </Style>
+    <Style Selector="Button.error /template/ ContentPresenter">
+        <Setter Property="Background" Value="#3A0A0A" />
+        <Setter Property="TextElement.Foreground" Value="#FF3333" />
+        <Setter Property="BorderBrush" Value="#FF3333" />
+    </Style>
+    <Style Selector="Button.error:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#5A1010" />
+        <Setter Property="TextElement.Foreground" Value="#FF6666" />
+    </Style>
 
     <!-- Provider badge -->
     <Style Selector="Border.provider-badge">

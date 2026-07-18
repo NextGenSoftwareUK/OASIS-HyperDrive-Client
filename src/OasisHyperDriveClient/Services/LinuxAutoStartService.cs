@@ -1,7 +1,9 @@
+using System.Runtime.Versioning;
 using OasisHyperDriveClient.Core.Services;
 
 namespace OasisHyperDriveClient.Services;
 
+[SupportedOSPlatform("linux")]
 public class LinuxAutoStartService : IAutoStartService
 {
     private static readonly string DesktopFilePath = Path.Combine(

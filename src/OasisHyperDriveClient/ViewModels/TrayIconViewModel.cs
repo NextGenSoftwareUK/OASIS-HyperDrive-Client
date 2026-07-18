@@ -10,14 +10,7 @@ public class TrayIconViewModel : ViewModelBase
     private readonly HyperDriveMonitorService _monitor;
 
     private TrayStateInfo _stateInfo = new() { State = TrayState.Disabled };
-    private string _iconPath = "avares://OasisHyperDriveClient/Assets/Icons/tray-disabled.png";
     private string _toolTipText = "OASIS HyperDrive — Connecting...";
-
-    public string IconPath
-    {
-        get => _iconPath;
-        private set => this.RaiseAndSetIfChanged(ref _iconPath, value);
-    }
 
     public string ToolTipText
     {
@@ -61,16 +54,6 @@ public class TrayIconViewModel : ViewModelBase
     {
         StateInfo = info;
         this.RaisePropertyChanged(nameof(CurrentState));
-        IconPath = info.State switch
-        {
-            TrayState.Healthy => "avares://OasisHyperDriveClient/Assets/Icons/tray-healthy.png",
-            TrayState.Degraded => "avares://OasisHyperDriveClient/Assets/Icons/tray-warning.png",
-            TrayState.Error => "avares://OasisHyperDriveClient/Assets/Icons/tray-error.png",
-            TrayState.Syncing => "avares://OasisHyperDriveClient/Assets/Icons/tray-syncing.png",
-            TrayState.Busy => "avares://OasisHyperDriveClient/Assets/Icons/tray-busy.png",
-            TrayState.Connecting => "avares://OasisHyperDriveClient/Assets/Icons/tray-connecting.png",
-            _ => "avares://OasisHyperDriveClient/Assets/Icons/tray-disabled.png"
-        };
 
         var providerLine = info.ActiveProviders > 0
             ? $"● {info.ActiveProviders} providers active"

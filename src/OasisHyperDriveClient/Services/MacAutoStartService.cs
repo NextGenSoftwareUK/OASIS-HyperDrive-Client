@@ -1,7 +1,9 @@
+using System.Runtime.Versioning;
 using OasisHyperDriveClient.Core.Services;
 
 namespace OasisHyperDriveClient.Services;
 
+[SupportedOSPlatform("macos")]
 public class MacAutoStartService : IAutoStartService
 {
     private static readonly string PlistPath = Path.Combine(

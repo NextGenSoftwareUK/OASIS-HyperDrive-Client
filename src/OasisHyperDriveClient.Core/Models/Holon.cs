@@ -8,6 +8,7 @@ public class Holon
     public string? CustomKey { get; set; }
     public bool IsNewHolon { get; set; }
     public bool IsSaving { get; set; }
+    public int Version { get; set; }
     public Guid? PreviousVersionId { get; set; }
     public GlobalHolonData? GlobalHolonData { get; set; }
     public Dictionary<string, string> ProviderUniqueStorageKey { get; set; } = new();
