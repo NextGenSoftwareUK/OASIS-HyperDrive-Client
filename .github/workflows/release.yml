@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 permissions:
   contents: write
@@ -75,10 +81,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: OASIS HyperDrive Client ${{ github.ref_name }} (Alpha)
+          name: OASIS HyperDrive Client ${{ inputs.version || github.ref_name }} (Alpha)
           prerelease: true
           body: |
-            ## OASIS HyperDrive Client ${{ github.ref_name }} — Alpha Release
+            ## OASIS HyperDrive Client ${{ inputs.version || github.ref_name }} — Alpha Release
 
             > ⚠️ **This is an alpha release.**
 
