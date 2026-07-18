@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
@@ -14,6 +15,7 @@ namespace OasisHyperDriveClient.Views;
 public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
 {
     private readonly DataService? _data;
+    private readonly HyperDriveService? _hyperDrive;
     private readonly AvatarService? _avatarService;
     private readonly AvaloniaNotificationService? _notifications;
 
@@ -26,10 +28,12 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
         FileBrowserViewModel vm,
         DataService? data = null,
         AvatarService? avatarService = null,
-        INotificationService? notifications = null) : this()
+        INotificationService? notifications = null,
+        HyperDriveService? hyperDrive = null) : this()
     {
         DataContext = vm;
         _data = data;
+        _hyperDrive = hyperDrive;
         _avatarService = avatarService;
         _notifications = notifications as AvaloniaNotificationService;
 
@@ -39,6 +43,12 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
         vm.DeleteRequested         += OnDeleteRequested;
         vm.UploadRequested         += OnUpload;
         vm.DownloadRequested       += OnDownload;
+        vm.VersionHistoryRequested += OnVersionHistory;
+
+        // Enable drag-and-drop onto the window
+        DragDrop.SetAllowDrop(this, true);
+        AddHandler(DragDrop.DropEvent, OnDrop);
+        AddHandler(DragDrop.DragOverEvent, OnDragOver);
     }
 
     protected override async void OnLoaded(RoutedEventArgs e)
@@ -136,6 +146,39 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
 
         var browserVm = (DataContext as FileBrowserViewModel)!;
         await browserVm.DownloadAsync(item, dest);
+    }
+
+    private void OnVersionHistory(object? sender, HolonViewModel item)
+    {
+        if (_hyperDrive is null || _data is null) return;
+        var vm = new VersionHistoryViewModel(item, _hyperDrive, _data);
+        var win = new VersionHistoryWindow(vm);
+        vm.RestoreRequested += async (_, holon) =>
+        {
+            win.Close();
+            await (DataContext as FileBrowserViewModel)!.RenameAsync(item, holon.Name);
+        };
+        win.ShowDialog(this);
+    }
+
+    private static void OnDragOver(object? sender, DragEventArgs e)
+    {
+        e.DragEffects = e.Data.Contains(DataFormats.Files) ? DragDropEffects.Copy : DragDropEffects.None;
+    }
+
+    private async void OnDrop(object? sender, DragEventArgs e)
+    {
+        if (!e.Data.Contains(DataFormats.Files)) return;
+        var files = e.Data.GetFiles();
+        if (files is null) return;
+
+        var storageFiles = files.OfType<IStorageFile>().ToList();
+        if (storageFiles.Count == 0) return;
+
+        var browserVm = DataContext as FileBrowserViewModel;
+        if (browserVm is null) return;
+
+        await browserVm.UploadFilesAsync(storageFiles);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

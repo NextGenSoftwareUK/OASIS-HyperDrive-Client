@@ -3,12 +3,28 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OasisHyperDriveClient.Core.Models;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace OasisHyperDriveClient.Core.Api;
 
 public class OasisApiClient
 {
     private readonly HttpClient _http;
+    private readonly AsyncCircuitBreakerPolicy<HttpResponseMessage> _circuitBreaker;
+
+    // Circuit opens after 5 consecutive failures; stays open for 30 s then allows one test request
+    private static AsyncCircuitBreakerPolicy<HttpResponseMessage> BuildCircuitBreaker() =>
+        Policy<HttpResponseMessage>
+            .HandleResult(r => !r.IsSuccessStatusCode)
+            .Or<HttpRequestException>()
+            .AdvancedCircuitBreakerAsync(
+                failureThreshold: 0.5,
+                samplingDuration: TimeSpan.FromSeconds(30),
+                minimumThroughput: 5,
+                durationOfBreak: TimeSpan.FromSeconds(30));
+
+    public bool IsCircuitOpen => _circuitBreaker.CircuitState == CircuitState.Open;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -20,6 +36,7 @@ public class OasisApiClient
     public OasisApiClient(HttpClient http)
     {
         _http = http;
+        _circuitBreaker = BuildCircuitBreaker();
     }
 
     public void SetBearerToken(string token)
@@ -35,8 +52,15 @@ public class OasisApiClient
 
     public async Task<OASISResult<T>> GetAsync<T>(string path, CancellationToken ct = default)
     {
-        var response = await _http.GetAsync(path, ct);
-        return await ReadResult<T>(response);
+        try
+        {
+            var response = await _circuitBreaker.ExecuteAsync(() => _http.GetAsync(path, ct));
+            return await ReadResult<T>(response);
+        }
+        catch (BrokenCircuitException)
+        {
+            return new OASISResult<T> { IsError = true, Message = "Service unavailable — circuit open (too many recent failures)" };
+        }
     }
 
     public async Task<OASISResult<T>> PostAsync<T>(string path, object? body = null, CancellationToken ct = default)
@@ -44,27 +68,36 @@ public class OasisApiClient
         var content = body is null
             ? new StringContent("{}", Encoding.UTF8, "application/json")
             : new StringContent(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
-
-        var response = await _http.PostAsync(path, content, ct);
-        return await ReadResult<T>(response);
+        try
+        {
+            var response = await _circuitBreaker.ExecuteAsync(() => _http.PostAsync(path, content, ct));
+            return await ReadResult<T>(response);
+        }
+        catch (BrokenCircuitException)
+        {
+            return new OASISResult<T> { IsError = true, Message = "Service unavailable — circuit open" };
+        }
     }
 
     public async Task<OASISResult<T>> DeleteAsync<T>(string path, object? body = null, CancellationToken ct = default)
     {
-        HttpResponseMessage response;
-        if (body is null)
+        try
         {
-            response = await _http.DeleteAsync(path, ct);
-        }
-        else
-        {
-            var req = new HttpRequestMessage(HttpMethod.Delete, path)
+            var response = await _circuitBreaker.ExecuteAsync(() =>
             {
-                Content = new StringContent(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json")
-            };
-            response = await _http.SendAsync(req, ct);
+                if (body is null) return _http.DeleteAsync(path, ct);
+                var req = new HttpRequestMessage(HttpMethod.Delete, path)
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json")
+                };
+                return _http.SendAsync(req, ct);
+            });
+            return await ReadResult<T>(response);
         }
-        return await ReadResult<T>(response);
+        catch (BrokenCircuitException)
+        {
+            return new OASISResult<T> { IsError = true, Message = "Service unavailable — circuit open" };
+        }
     }
 
     private static async Task<OASISResult<T>> ReadResult<T>(HttpResponseMessage response)

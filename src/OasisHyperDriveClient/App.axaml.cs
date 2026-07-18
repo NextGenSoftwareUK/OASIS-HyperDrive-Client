@@ -66,12 +66,18 @@ public partial class App : Application
         services.AddSingleton<AvatarService>();
         services.AddSingleton<DataService>();
         services.AddSingleton<HyperDriveService>();
-        services.AddSingleton<ICredentialStore, FileCredentialStore>();
+        if (OperatingSystem.IsWindows())
+            services.AddSingleton<ICredentialStore, Auth.WindowsCredentialStore>();
+        else if (OperatingSystem.IsMacOS())
+            services.AddSingleton<ICredentialStore, Auth.MacKeychainStore>();
+        else
+            services.AddSingleton<ICredentialStore, Auth.LinuxSecretStore>();
         services.AddSingleton<AuthService>();
         services.AddSingleton<HyperDriveMonitorService>(sp =>
             new HyperDriveMonitorService(
                 sp.GetRequiredService<HyperDriveService>(),
                 TimeSpan.FromSeconds(sp.GetRequiredService<AppSettings>().DashboardRefreshSeconds)));
+        services.AddSingleton<HolonCacheService>();
         services.AddSingleton<INotificationService, AvaloniaNotificationService>();
 
         if (OperatingSystem.IsWindows())
@@ -163,7 +169,8 @@ public partial class App : Application
                 vm,
                 _services!.GetRequiredService<DataService>(),
                 _services!.GetRequiredService<AvatarService>(),
-                _services!.GetRequiredService<INotificationService>());
+                _services!.GetRequiredService<INotificationService>(),
+                _services!.GetRequiredService<HyperDriveService>());
         }
 
         _browserWindow.Show();

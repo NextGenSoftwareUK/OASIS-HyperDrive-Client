@@ -71,3 +71,12 @@ public class HyperDriveConfig
     public bool AutoLoadBalancingEnabled { get; set; }
     public List<string> EnabledProviders { get; set; } = [];
 }
+
+public class HyperDriveRecommendation
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Severity { get; set; } = "Info";   // Info | Warning | Critical
+    public string ProviderType { get; set; } = string.Empty;
+    public string ActionType { get; set; } = string.Empty;
+}

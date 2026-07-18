@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows.Input;
 using Avalonia.Platform.Storage;
 using OasisHyperDriveClient.Core.Api;
@@ -23,10 +24,18 @@ public class FileBrowserViewModel : ViewModelBase
     private bool _isLoading;
     private string _statusText = "Ready";
     private HolonViewModel? _selectedItem;
+    private bool _isGridView;
+
+    // Breadcrumb navigation
+    private readonly Stack<string> _backStack = new();
+    private readonly Stack<string> _forwardStack = new();
+    private string _currentPath = "/";
 
     public ObservableCollection<HolonViewModel> Items { get; } = [];
+    public ObservableCollection<HolonViewModel> SelectedItems { get; } = [];
     public ObservableCollection<string> AvailableProviders { get; } = ["All Providers"];
     public ObservableCollection<string> ActiveProviderNames { get; } = [];
+    public ObservableCollection<BreadcrumbSegment> Breadcrumbs { get; } = [new("/", "/")];
 
     public string SelectedContentType
     {
@@ -72,6 +81,18 @@ public class FileBrowserViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
     }
 
+    public bool IsGridView
+    {
+        get => _isGridView;
+        set => this.RaiseAndSetIfChanged(ref _isGridView, value);
+    }
+
+    public string CurrentPath
+    {
+        get => _currentPath;
+        private set => this.RaiseAndSetIfChanged(ref _currentPath, value);
+    }
+
     public ICommand RefreshCommand            { get; }
     public ICommand DeleteCommand             { get; }
     public ICommand ViewMetadataCommand       { get; }
@@ -80,6 +101,14 @@ public class FileBrowserViewModel : ViewModelBase
     public ICommand UploadCommand             { get; }
     public ICommand DownloadCommand           { get; }
     public ICommand SelectContentTypeCommand  { get; }
+    public ICommand ToggleViewCommand         { get; }
+    public ICommand BackCommand               { get; }
+    public ICommand ForwardCommand            { get; }
+    public ICommand NavigateToCommand         { get; }
+    public ICommand ViewOnProviderCommand     { get; }
+    public ICommand BatchDeleteCommand        { get; }
+    public ICommand BatchDownloadCommand      { get; }
+    public ICommand ShowVersionHistoryCommand { get; }
 
     public static IReadOnlyList<string> ContentTypes { get; } =
         ["All", "File", "Holon", "NFT", "GeoNFT", "Avatar", "Keys"];
@@ -90,6 +119,7 @@ public class FileBrowserViewModel : ViewModelBase
     public event EventHandler<HolonViewModel>? DeleteRequested;
     public event EventHandler<HolonViewModel>? DownloadRequested;
     public event EventHandler?                 UploadRequested;
+    public event EventHandler<HolonViewModel>? VersionHistoryRequested;
 
     public FileBrowserViewModel(
         DataService data,
@@ -141,6 +171,69 @@ public class FileBrowserViewModel : ViewModelBase
         {
             SelectedContentType = type;
         });
+
+        ToggleViewCommand = ReactiveCommand.Create(() => IsGridView = !IsGridView);
+
+        var canGoBack    = this.WhenAnyValue(x => x.CurrentPath).Select(_ => _backStack.Count > 0);
+        var canGoForward = this.WhenAnyValue(x => x.CurrentPath).Select(_ => _forwardStack.Count > 0);
+
+        BackCommand = ReactiveCommand.Create(() =>
+        {
+            if (_backStack.Count == 0) return;
+            _forwardStack.Push(CurrentPath);
+            CurrentPath = _backStack.Pop();
+            RebuildBreadcrumbs();
+            _ = LoadItemsAsync();
+        }, canGoBack);
+
+        ForwardCommand = ReactiveCommand.Create(() =>
+        {
+            if (_forwardStack.Count == 0) return;
+            _backStack.Push(CurrentPath);
+            CurrentPath = _forwardStack.Pop();
+            RebuildBreadcrumbs();
+            _ = LoadItemsAsync();
+        }, canGoForward);
+
+        NavigateToCommand = ReactiveCommand.Create<string>(path =>
+        {
+            if (path == CurrentPath) return;
+            _backStack.Push(CurrentPath);
+            _forwardStack.Clear();
+            CurrentPath = path;
+            RebuildBreadcrumbs();
+            _ = LoadItemsAsync();
+        });
+
+        ViewOnProviderCommand = ReactiveCommand.Create(() =>
+        {
+            if (SelectedItem is null) return;
+            var url = BuildProviderUrl(SelectedItem);
+            if (!string.IsNullOrEmpty(url))
+                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+                catch { /* ignore */ }
+        }, hasSelection);
+
+        // Track whether SelectedItems is non-empty via CollectionChanged
+        var hasMultiSelectSubject = new System.Reactive.Subjects.BehaviorSubject<bool>(false);
+        SelectedItems.CollectionChanged += (_, _) => hasMultiSelectSubject.OnNext(SelectedItems.Count > 0);
+
+        BatchDeleteCommand = ReactiveCommand.Create(() =>
+        {
+            foreach (var item in SelectedItems.ToList())
+                DeleteRequested?.Invoke(this, item);
+        }, hasMultiSelectSubject);
+
+        BatchDownloadCommand = ReactiveCommand.Create(() =>
+        {
+            foreach (var item in SelectedItems.ToList())
+                DownloadRequested?.Invoke(this, item);
+        }, hasMultiSelectSubject);
+
+        ShowVersionHistoryCommand = ReactiveCommand.Create(() =>
+        {
+            if (SelectedItem is not null) VersionHistoryRequested?.Invoke(this, SelectedItem);
+        }, hasSelection);
     }
 
     public async Task InitialiseAsync()
@@ -314,6 +407,30 @@ public class FileBrowserViewModel : ViewModelBase
             SendToAvatarRequested?.Invoke(this, SelectedItem);
     }
 
+    private void RebuildBreadcrumbs()
+    {
+        Breadcrumbs.Clear();
+        var parts = CurrentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var accumulated = "/";
+        Breadcrumbs.Add(new BreadcrumbSegment("Root", "/"));
+        foreach (var part in parts)
+        {
+            accumulated = accumulated.TrimEnd('/') + "/" + part;
+            Breadcrumbs.Add(new BreadcrumbSegment(part, accumulated));
+        }
+    }
+
+    private static string BuildProviderUrl(HolonViewModel item)
+    {
+        return item.PrimaryProvider?.ToLowerInvariant() switch
+        {
+            "ethereum" or "eth" => $"https://etherscan.io/search?q={item.Id}",
+            "ipfs"              => $"https://ipfs.io/ipfs/{item.Id}",
+            "holochain"         => string.Empty,
+            _                   => string.Empty
+        };
+    }
+
     private void OnMonitorStateChanged(object? sender, TrayStateInfo info)
     {
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
@@ -325,3 +442,5 @@ public class FileBrowserViewModel : ViewModelBase
         });
     }
 }
+
+public record BreadcrumbSegment(string Label, string Path);

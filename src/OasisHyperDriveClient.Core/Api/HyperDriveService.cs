@@ -40,4 +40,16 @@ public class HyperDriveService
         var result = await _api.PostAsync<bool>("api/hyperDrive/intelligent-mode/disable", null, ct);
         return !result.IsError && result.Result;
     }
+
+    public async Task<List<HyperDriveRecommendation>> GetRecommendationsAsync(CancellationToken ct = default)
+    {
+        var result = await _api.GetAsync<List<HyperDriveRecommendation>>("api/hyperDrive/recommendations", ct);
+        return result.IsError || result.Result is null ? [] : result.Result;
+    }
+
+    public async Task<List<Holon>> GetVersionHistoryAsync(Guid holonId, CancellationToken ct = default)
+    {
+        var result = await _api.GetAsync<List<Holon>>($"api/data/holon-version-history/{holonId}", ct);
+        return result.IsError || result.Result is null ? [] : result.Result;
+    }
 }

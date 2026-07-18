@@ -66,6 +66,7 @@ public class DashboardViewModel : ViewModelBase
 
     public ObservableCollection<ProviderPerformanceMetrics> ProviderMetrics { get; } = [];
     public ObservableCollection<DashboardAlert> Alerts { get; } = [];
+    public ObservableCollection<HyperDriveRecommendation> Recommendations { get; } = [];
 
     public ICommand RefreshCommand { get; }
 
@@ -102,6 +103,11 @@ public class DashboardViewModel : ViewModelBase
             if (metrics is not null)
                 foreach (var m in metrics.Values)
                     ProviderMetrics.Add(m);
+
+            var recs = await _hyperDrive.GetRecommendationsAsync(ct);
+            Recommendations.Clear();
+            foreach (var r in recs)
+                Recommendations.Add(r);
         }
         finally
         {
