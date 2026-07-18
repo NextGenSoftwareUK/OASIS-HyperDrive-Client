@@ -139,7 +139,10 @@
                               AutoGenerateColumns="False"
                               CanUserResizeColumns="True"
                               CanUserSortColumns="True"
-                              SelectionMode="Single">
+                              SelectionMode="Single"
+                              DragDrop.AllowDrop="True"
+                              DragDrop.Drop="OnDrop"
+                              DragDrop.DragOver="OnDragOver">
 
                         <DataGrid.ContextMenu>
                             <ContextMenu>

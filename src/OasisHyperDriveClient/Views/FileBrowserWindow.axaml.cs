@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
@@ -140,6 +141,27 @@ public partial class FileBrowserWindow : ReactiveWindow<FileBrowserViewModel>
 
         var browserVm = (DataContext as FileBrowserViewModel)!;
         await browserVm.DownloadAsync(item, dest);
+    }
+
+    private void OnDragOver(object? sender, DragEventArgs e)
+    {
+        e.DragEffects = e.DataTransfer.Items.Any(i => i.Formats.Contains(DataFormat.File))
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private async void OnDrop(object? sender, DragEventArgs e)
+    {
+        var files = e.DataTransfer.Items
+            .Where(i => i.Formats.Contains(DataFormat.File))
+            .Select(i => i.TryGetRaw(DataFormat.File) as IStorageFile)
+            .OfType<IStorageFile>()
+            .ToList();
+
+        if (files.Count == 0) return;
+        var browserVm = (DataContext as FileBrowserViewModel)!;
+        await browserVm.UploadFilesAsync(files);
     }
 
     private void OnVersionHistory(object? sender, HolonViewModel item)
