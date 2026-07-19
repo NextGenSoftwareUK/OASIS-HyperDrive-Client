@@ -28,7 +28,7 @@
                 <StackPanel Spacing="6">
                     <TextBlock Text="Email" FontSize="12" Foreground="#808099" />
                     <TextBox Text="{Binding Email}"
-                             Watermark="avatar@example.com"
+                             PlaceholderText="avatar@example.com"
                              Background="#0A0A18"
                              BorderBrush="#2A2A4A"
                              Foreground="#E0E0FF"
@@ -39,7 +39,7 @@
                     <TextBlock Text="Password" FontSize="12" Foreground="#808099" />
                     <TextBox Text="{Binding Password}"
                              PasswordChar="●"
-                             Watermark="••••••••"
+                             PlaceholderText="••••••••"
                              Background="#0A0A18"
                              BorderBrush="#2A2A4A"
                              Foreground="#E0E0FF"

@@ -20,7 +20,7 @@
                 </StackPanel>
                 <StackPanel Spacing="8">
                     <TextBlock Text="Default Provider" Foreground="#CCCCCC" FontSize="12" />
-                    <TextBox Text="{Binding DefaultProvider}" Watermark="Leave blank for auto" />
+                    <TextBox Text="{Binding DefaultProvider}" PlaceholderText="Leave blank for auto" />
                 </StackPanel>
 
                 <!-- Dashboard -->
